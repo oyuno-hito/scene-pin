@@ -11,7 +11,7 @@ terraform {
   # リモートステート管理が必要な場合はここを有効化
   # backend "s3" {
   #   bucket = "your-tfstate-bucket"
-  #   key    = "media-player/terraform.tfstate"
+  #   key    = "scene-pin/terraform.tfstate"
   #   region = "ap-northeast-1"
   # }
 }

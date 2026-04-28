@@ -1,4 +1,4 @@
-const CACHE_NAME = 'media-player-v1';
+const CACHE_NAME = 'scene-pin-v1';
 const PRECACHE_URLS = [
   '/',
   '/index.html',

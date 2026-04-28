@@ -15,7 +15,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Media Player</h1>
+        <h1>ScenePin</h1>
         {player.videoName && (
           <span className="video-title">{player.videoName}</span>
         )}

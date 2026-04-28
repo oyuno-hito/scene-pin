@@ -1,7 +1,7 @@
 variable "project_name" {
   description = "Project name used for resource naming"
   type        = string
-  default     = "media-player"
+  default     = "scene-pin"
 }
 
 variable "aws_region" {

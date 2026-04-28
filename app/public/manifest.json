@@ -1,7 +1,7 @@
 {
-  "name": "Media Player",
-  "short_name": "MediaPlayer",
-  "description": "パーソナル動画ブックマーク＆プレイヤー",
+  "name": "ScenePin",
+  "short_name": "ScenePin",
+  "description": "動画のシーンをピン留めして瞬時にジャンプ",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f0f13",

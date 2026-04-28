@@ -8,7 +8,7 @@ export interface Bookmark {
   createdAt: number;
 }
 
-const db = new Dexie('MediaPlayerDB') as Dexie & {
+const db = new Dexie('ScenePinDB') as Dexie & {
   bookmarks: EntityTable<Bookmark, 'id'>;
 };
 
