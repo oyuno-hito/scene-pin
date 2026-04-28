@@ -1,11 +1,12 @@
 name: Build & Deploy
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "app/**"
-      - ".github/workflows/deploy.yml"
+  # 自動実行を一時停止中（手動実行のみ）
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - "app/**"
+  #     - ".github/workflows/deploy.yml"
   workflow_dispatch:
 
 permissions:
