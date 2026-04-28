@@ -124,6 +124,13 @@ export function useVideoPlayer(videoId: number) {
     const v = videoRef.current;
     if (!v || !videoSrc) return;
 
+    v.load();
+  }, [videoSrc]);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || !videoSrc) return;
+
     const onTimeUpdate = () => {
       setCurrentTime(v.currentTime);
       if (loop && v.currentTime >= loop.b) {
