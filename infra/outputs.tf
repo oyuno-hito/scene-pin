@@ -17,3 +17,8 @@ output "site_url" {
   description = "URL of the hosted site"
   value       = "https://${aws_cloudfront_distribution.site.domain_name}"
 }
+
+output "terraform_role_arn" {
+  description = "IAM Role ARN for GitHub Actions (set as AWS_ROLE_ARN secret)"
+  value       = aws_iam_role.terraform_admin.arn
+}

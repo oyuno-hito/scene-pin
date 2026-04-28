@@ -6,5 +6,8 @@ infra/.terraform.lock.hcl
 infra/tfplan
 infra/terraform.tfvars
 
+# env
+.envrc
+
 # OS
 .DS_Store

@@ -15,3 +15,8 @@ variable "allowed_cidrs" {
   type        = list(string)
   default     = []
 }
+
+variable "github_repository" {
+  description = "GitHub repository in format 'owner/repo' for OIDC trust policy"
+  type        = string
+}
