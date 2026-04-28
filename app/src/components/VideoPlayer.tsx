@@ -103,7 +103,7 @@ export function VideoPlayer({
               ref={videoRef}
               src={videoSrc}
               playsInline
-              preload="metadata"
+              preload="auto"
               onClick={onTogglePlay}
             />
             {isLoading && (

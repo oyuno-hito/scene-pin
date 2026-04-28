@@ -199,6 +199,7 @@ export function useVideoPlayer() {
     };
     const onLoadedMetadata = () => {
       setDuration(v.duration);
+      setIsLoading(false);
       if (currentTime > 0 && v.currentTime === 0) {
         v.currentTime = currentTime;
       }
