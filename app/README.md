@@ -1,73 +1,54 @@
-# React + TypeScript + Vite
+# ScenePin - App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+動画のシーンをピン留めして瞬時にジャンプできるアプリ。
 
-Currently, two official plugins are available:
+## 開発（Web）
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## ビルド（Web）
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
 ```
+
+## iOSアプリ（Capacitor）
+
+### 初回セットアップ
+
+```bash
+# Webをビルドしてiプロジェクトを同期
+npm run cap:build:ios
+
+# Xcodeでプロジェクトを開く
+npm run cap:open:ios
+```
+
+### Xcodeでの操作
+
+1. Xcodeで開いたら、左上でターゲットデバイス（シミュレータまたは実機）を選択
+2. `Cmd + R` でビルド＆実行
+3. 実機の場合は「Signing & Capabilities」でTeamを設定
+
+### 変更後の再ビルド
+
+```bash
+npm run cap:sync
+```
+
+### AltStoreでインストール（Apple Developer不要）
+
+1. Xcodeで Product → Archive
+2. Distribute App → Ad Hoc → Export
+3. 出力された .ipa ファイルをAltStoreでインストール
+
+## 技術スタック
+
+- React 19
+- TypeScript
+- Vite
+- Dexie（IndexedDB）
+- Capacitor（iOS/Android）
