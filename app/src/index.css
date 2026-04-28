@@ -52,6 +52,9 @@ body {
   z-index: 10;
   background: var(--bg);
   padding: 12px 16px;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 12px);
+  padding-left: calc(env(safe-area-inset-left, 0px) + 16px);
+  padding-right: calc(env(safe-area-inset-right, 0px) + 16px);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -74,6 +77,8 @@ body {
 
 .app-main {
   padding: 0 16px 16px;
+  padding-left: calc(env(safe-area-inset-left, 0px) + 16px);
+  padding-right: calc(env(safe-area-inset-right, 0px) + 16px);
 }
 
 /* File Picker */
