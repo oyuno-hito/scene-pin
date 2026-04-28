@@ -6,6 +6,7 @@ interface Props {
   videoRef: RefObject<HTMLVideoElement | null>;
   videoSrc: string | null;
   isPlaying: boolean;
+  isLoading: boolean;
   currentTime: number;
   duration: number;
   playbackRate: number;
@@ -28,6 +29,7 @@ export function VideoPlayer({
   videoRef,
   videoSrc,
   isPlaying,
+  isLoading,
   currentTime,
   duration,
   playbackRate,
@@ -75,8 +77,14 @@ export function VideoPlayer({
               ref={videoRef}
               src={videoSrc}
               playsInline
+              preload="metadata"
               onClick={onTogglePlay}
             />
+            {isLoading && (
+              <div className="video-loading">
+                <div className="loading-spinner" />
+              </div>
+            )}
           </div>
 
           <div className="controls">

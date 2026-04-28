@@ -26,6 +26,7 @@ export default function App() {
           videoRef={player.videoRef}
           videoSrc={player.videoSrc}
           isPlaying={player.isPlaying}
+          isLoading={player.isLoading}
           currentTime={player.currentTime}
           duration={player.duration}
           playbackRate={player.playbackRate}

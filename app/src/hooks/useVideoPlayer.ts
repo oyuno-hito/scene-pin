@@ -15,6 +15,7 @@ export function useVideoPlayer() {
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const [videoName, setVideoName] = useState<string>('');
   const [loop, setLoop] = useState<LoopRange | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const loadVideo = useCallback((file: File) => {
     if (videoSrc) URL.revokeObjectURL(videoSrc);
@@ -24,6 +25,7 @@ export function useVideoPlayer() {
     setLoop(null);
     setCurrentTime(0);
     setDuration(0);
+    setIsLoading(true);
   }, [videoSrc]);
 
   const togglePlay = useCallback(() => {
@@ -83,17 +85,23 @@ export function useVideoPlayer() {
       }
     };
     const onLoadedMetadata = () => setDuration(v.duration);
+    const onCanPlay = () => setIsLoading(false);
+    const onWaiting = () => setIsLoading(true);
     const onPlay = () => setIsPlaying(true);
     const onPause = () => setIsPlaying(false);
 
     v.addEventListener('timeupdate', onTimeUpdate);
     v.addEventListener('loadedmetadata', onLoadedMetadata);
+    v.addEventListener('canplay', onCanPlay);
+    v.addEventListener('waiting', onWaiting);
     v.addEventListener('play', onPlay);
     v.addEventListener('pause', onPause);
 
     return () => {
       v.removeEventListener('timeupdate', onTimeUpdate);
       v.removeEventListener('loadedmetadata', onLoadedMetadata);
+      v.removeEventListener('canplay', onCanPlay);
+      v.removeEventListener('waiting', onWaiting);
       v.removeEventListener('play', onPlay);
       v.removeEventListener('pause', onPause);
     };
@@ -102,6 +110,7 @@ export function useVideoPlayer() {
   return {
     videoRef,
     isPlaying,
+    isLoading,
     currentTime,
     duration,
     playbackRate,
