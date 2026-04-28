@@ -16,41 +16,45 @@ export function useVideoPlayer() {
   const [videoName, setVideoName] = useState<string>('');
   const [loop, setLoop] = useState<LoopRange | null>(null);
 
-  const video = videoRef.current;
-
   const loadVideo = useCallback((file: File) => {
     if (videoSrc) URL.revokeObjectURL(videoSrc);
     const url = URL.createObjectURL(file);
     setVideoSrc(url);
     setVideoName(file.name);
     setLoop(null);
+    setCurrentTime(0);
+    setDuration(0);
   }, [videoSrc]);
 
   const togglePlay = useCallback(() => {
+    const video = videoRef.current;
     if (!video) return;
     if (video.paused) {
       video.play();
     } else {
       video.pause();
     }
-  }, [video]);
+  }, []);
 
   const seek = useCallback((time: number) => {
+    const video = videoRef.current;
     if (!video) return;
     video.currentTime = time;
-  }, [video]);
+  }, []);
 
   const changeRate = useCallback((rate: number) => {
+    const video = videoRef.current;
     if (!video) return;
     video.playbackRate = rate;
     setPlaybackRate(rate);
-  }, [video]);
+  }, []);
 
   const changeVolume = useCallback((v: number) => {
+    const video = videoRef.current;
     if (!video) return;
     video.volume = v;
     setVolume(v);
-  }, [video]);
+  }, []);
 
   const setLoopA = useCallback(() => {
     setLoop(prev =>
@@ -93,7 +97,7 @@ export function useVideoPlayer() {
       v.removeEventListener('play', onPlay);
       v.removeEventListener('pause', onPause);
     };
-  }, [loop]);
+  }, [loop, videoSrc]);
 
   return {
     videoRef,
