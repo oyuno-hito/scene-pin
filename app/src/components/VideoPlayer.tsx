@@ -9,6 +9,7 @@ interface Props {
   isLoading: boolean;
   currentTime: number;
   duration: number;
+  videoSize: number;
   playbackRate: number;
   volume: number;
   loop: LoopRange | null;
@@ -24,6 +25,7 @@ interface Props {
 }
 
 const RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
+const LARGE_FILE_THRESHOLD = 100 * 1024 * 1024; // 100MB
 
 export function VideoPlayer({
   videoRef,
@@ -32,6 +34,7 @@ export function VideoPlayer({
   isLoading,
   currentTime,
   duration,
+  videoSize,
   playbackRate,
   volume,
   loop,
@@ -51,6 +54,8 @@ export function VideoPlayer({
   };
 
   const seekBarPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const isLargeFile = videoSize > LARGE_FILE_THRESHOLD;
+  const fileSizeMB = Math.round(videoSize / 1024 / 1024);
 
   return (
     <div className="player">
@@ -62,6 +67,7 @@ export function VideoPlayer({
               <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
             </svg>
             <span>動画ファイルを選択</span>
+            <span className="file-picker-hint">大きいファイルは読み込みに時間がかかります</span>
             <input
               type="file"
               accept="video/*"
@@ -86,6 +92,20 @@ export function VideoPlayer({
               </div>
             )}
           </div>
+
+          {isLargeFile && (
+            <div className="large-file-warning">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <span>
+                ファイルサイズが大きいです（{fileSizeMB}MB）。
+                読み込みが遅い場合は、動画を圧縮してからお使いください。
+              </span>
+            </div>
+          )}
 
           <div className="controls">
             <div className="seek-row">

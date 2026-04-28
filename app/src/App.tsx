@@ -29,6 +29,7 @@ export default function App() {
           isLoading={player.isLoading}
           currentTime={player.currentTime}
           duration={player.duration}
+          videoSize={player.videoSize}
           playbackRate={player.playbackRate}
           volume={player.volume}
           loop={player.loop}

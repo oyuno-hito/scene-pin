@@ -14,6 +14,7 @@ export function useVideoPlayer() {
   const [volume, setVolume] = useState(1);
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const [videoName, setVideoName] = useState<string>('');
+  const [videoSize, setVideoSize] = useState<number>(0);
   const [loop, setLoop] = useState<LoopRange | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -22,6 +23,7 @@ export function useVideoPlayer() {
     const url = URL.createObjectURL(file);
     setVideoSrc(url);
     setVideoName(file.name);
+    setVideoSize(file.size);
     setLoop(null);
     setCurrentTime(0);
     setDuration(0);
@@ -117,6 +119,7 @@ export function useVideoPlayer() {
     volume,
     videoSrc,
     videoName,
+    videoSize,
     loop,
     loadVideo,
     togglePlay,
