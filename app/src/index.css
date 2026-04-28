@@ -1,0 +1,414 @@
+:root {
+  --bg: #0f0f13;
+  --surface: #1a1a24;
+  --surface2: #24243a;
+  --text: #e8e8f0;
+  --text2: #9898b0;
+  --accent: #6c5ce7;
+  --accent-light: #a29bfe;
+  --danger: #ff6b6b;
+  --track: #2d2d44;
+  --radius: 12px;
+  --radius-sm: 8px;
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  overflow-x: hidden;
+  min-height: 100dvh;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+.app {
+  max-width: 600px;
+  margin: 0 auto;
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--surface2);
+}
+
+.app-header h1 {
+  font-size: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.video-title {
+  font-size: 13px;
+  color: var(--text2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-main {
+  padding: 0 16px 16px;
+}
+
+/* File Picker */
+.file-picker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
+  margin-top: 16px;
+}
+
+.file-picker-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px 48px;
+  border: 2px dashed var(--surface2);
+  border-radius: var(--radius);
+  color: var(--text2);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.file-picker-label:active {
+  border-color: var(--accent);
+  color: var(--accent-light);
+}
+
+/* Video */
+.video-wrapper {
+  margin-top: 12px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #000;
+}
+
+.video-wrapper video {
+  display: block;
+  width: 100%;
+  max-height: 50dvh;
+  object-fit: contain;
+}
+
+/* Controls */
+.controls {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 14px 16px 12px;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.seek-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-label {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text2);
+  min-width: 42px;
+  text-align: center;
+}
+
+.seek-bar-container {
+  position: relative;
+  flex: 1;
+  height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.loop-range-indicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 6px;
+  background: var(--accent-light);
+  opacity: 0.3;
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+.seek-bar,
+.volume-bar {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.seek-bar::-webkit-slider-thumb,
+.volume-bar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-light);
+  border: 2px solid var(--bg);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.control-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ctrl-btn {
+  background: var(--surface2);
+  border: none;
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ctrl-btn:active {
+  background: var(--accent);
+}
+
+.play-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.play-btn:active {
+  background: var(--accent-light);
+}
+
+.pin-btn {
+  color: var(--accent-light);
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  color: var(--text2);
+}
+
+.volume-bar {
+  width: 80px;
+  height: 4px;
+  background: var(--track);
+}
+
+.rate-row {
+  display: flex;
+  gap: 6px;
+}
+
+.rate-btn {
+  flex: 1;
+  background: var(--surface2);
+  border: none;
+  color: var(--text2);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.rate-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.rate-btn:active {
+  background: var(--accent-light);
+}
+
+.loop-row {
+  display: flex;
+  gap: 8px;
+}
+
+.loop-btn {
+  flex: 1;
+}
+
+.loop-clear-btn {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+.loop-clear-btn:active {
+  background: var(--danger);
+  color: #fff;
+}
+
+.change-file-label {
+  display: block;
+  text-align: center;
+  margin-top: 8px;
+  color: var(--text2);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.change-file-label:active {
+  color: var(--accent-light);
+}
+
+/* Bookmarks */
+.bookmarks-section {
+  margin-top: 20px;
+}
+
+.bookmarks-section h2 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.bookmark-empty {
+  text-align: center;
+  padding: 24px 16px;
+  color: var(--text2);
+}
+
+.bookmark-empty .hint {
+  font-size: 13px;
+  margin-top: 4px;
+  opacity: 0.7;
+}
+
+.bookmark-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bookmark-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.bookmark-time {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.bookmark-time:active {
+  background: var(--accent-light);
+}
+
+.bookmark-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.bookmark-memo {
+  font-size: 14px;
+  color: var(--text2);
+  cursor: pointer;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bookmark-edit {
+  display: flex;
+  gap: 6px;
+}
+
+.memo-input {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 4px 8px;
+  font-size: 14px;
+  outline: none;
+}
+
+.save-btn {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: var(--text2);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.delete-btn:active {
+  color: var(--danger);
+}
