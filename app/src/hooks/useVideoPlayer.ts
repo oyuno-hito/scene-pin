@@ -1,12 +1,20 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { FilePicker } from '@capawesome/capacitor-file-picker';
+import { db } from '../db';
 
 export interface LoopRange {
   a: number;
   b: number;
 }
 
+const LAST_VIDEO_ID = 1;
+
 export function useVideoPlayer() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const videoSrcRef = useRef<string | null>(null);
+  const initialLoadDone = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -17,10 +25,97 @@ export function useVideoPlayer() {
   const [videoSize, setVideoSize] = useState<number>(0);
   const [loop, setLoop] = useState<LoopRange | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isNative] = useState(() => Capacitor.isNativePlatform());
+
+  const saveLastVideo = useCallback(async (name: string, path: string, time: number) => {
+    await db.lastVideo.put({
+      id: LAST_VIDEO_ID,
+      videoName: name,
+      filePath: path,
+      lastTime: time,
+      updatedAt: Date.now(),
+    });
+  }, []);
+
+  const loadVideoFromPath = useCallback(async (filePath: string, name: string, startTime?: number) => {
+    setIsLoading(true);
+    try {
+      if (isNative) {
+        const result = await Filesystem.readFile({
+          path: filePath,
+          directory: Directory.Documents,
+        });
+        const blob = new Blob([Uint8Array.from(atob(result.data as string), c => c.charCodeAt(0))], { type: 'video/mp4' });
+        const url = URL.createObjectURL(blob);
+        if (videoSrcRef.current) URL.revokeObjectURL(videoSrcRef.current);
+        videoSrcRef.current = url;
+        setVideoSrc(url);
+        setVideoName(name);
+        setVideoSize(blob.size);
+        setLoop(null);
+        setCurrentTime(startTime ?? 0);
+        setDuration(0);
+      }
+    } catch (error) {
+      console.error('Failed to load video from path:', error);
+      setIsLoading(false);
+    }
+  }, [isNative]);
+
+  const pickVideoNative = useCallback(async () => {
+    try {
+      const result = await FilePicker.pickVideos({ limit: 1 });
+      if (result.files.length === 0) return;
+
+      const file = result.files[0];
+      setIsLoading(true);
+
+      const fileName = file.name || `video_${Date.now()}.mp4`;
+      const storedPath = `videos/${fileName}`;
+
+      if (file.data) {
+        await Filesystem.writeFile({
+          path: storedPath,
+          data: file.data,
+          directory: Directory.Documents,
+          recursive: true,
+        });
+      } else if (file.path) {
+        const readResult = await Filesystem.readFile({ path: file.path });
+        await Filesystem.writeFile({
+          path: storedPath,
+          data: readResult.data,
+          directory: Directory.Documents,
+          recursive: true,
+        });
+      }
+
+      await saveLastVideo(fileName, storedPath, 0);
+      
+      const readResult = await Filesystem.readFile({
+        path: storedPath,
+        directory: Directory.Documents,
+      });
+      const blob = new Blob([Uint8Array.from(atob(readResult.data as string), c => c.charCodeAt(0))], { type: 'video/mp4' });
+      const url = URL.createObjectURL(blob);
+      if (videoSrcRef.current) URL.revokeObjectURL(videoSrcRef.current);
+      videoSrcRef.current = url;
+      setVideoSrc(url);
+      setVideoName(fileName);
+      setVideoSize(blob.size);
+      setLoop(null);
+      setCurrentTime(0);
+      setDuration(0);
+    } catch (error) {
+      console.error('Failed to pick video:', error);
+      setIsLoading(false);
+    }
+  }, [saveLastVideo]);
 
   const loadVideo = useCallback((file: File) => {
-    if (videoSrc) URL.revokeObjectURL(videoSrc);
+    if (videoSrcRef.current) URL.revokeObjectURL(videoSrcRef.current);
     const url = URL.createObjectURL(file);
+    videoSrcRef.current = url;
     setVideoSrc(url);
     setVideoName(file.name);
     setVideoSize(file.size);
@@ -28,7 +123,7 @@ export function useVideoPlayer() {
     setCurrentTime(0);
     setDuration(0);
     setIsLoading(true);
-  }, [videoSrc]);
+  }, []);
 
   const togglePlay = useCallback(() => {
     const video = videoRef.current;
@@ -77,6 +172,22 @@ export function useVideoPlayer() {
   }, []);
 
   useEffect(() => {
+    if (isNative && !initialLoadDone.current) {
+      initialLoadDone.current = true;
+      (async () => {
+        try {
+          const last = await db.lastVideo.get(LAST_VIDEO_ID);
+          if (last) {
+            await loadVideoFromPath(last.filePath, last.videoName, last.lastTime);
+          }
+        } catch (error) {
+          console.error('Failed to load last video:', error);
+        }
+      })();
+    }
+  }, [isNative, loadVideoFromPath]);
+
+  useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
 
@@ -86,11 +197,21 @@ export function useVideoPlayer() {
         v.currentTime = loop.a;
       }
     };
-    const onLoadedMetadata = () => setDuration(v.duration);
+    const onLoadedMetadata = () => {
+      setDuration(v.duration);
+      if (currentTime > 0 && v.currentTime === 0) {
+        v.currentTime = currentTime;
+      }
+    };
     const onCanPlay = () => setIsLoading(false);
     const onWaiting = () => setIsLoading(true);
     const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
+    const onPause = () => {
+      setIsPlaying(false);
+      if (isNative && videoName) {
+        saveLastVideo(videoName, `videos/${videoName}`, v.currentTime);
+      }
+    };
 
     v.addEventListener('timeupdate', onTimeUpdate);
     v.addEventListener('loadedmetadata', onLoadedMetadata);
@@ -107,7 +228,7 @@ export function useVideoPlayer() {
       v.removeEventListener('play', onPlay);
       v.removeEventListener('pause', onPause);
     };
-  }, [loop, videoSrc]);
+  }, [loop, videoSrc, isNative, videoName, saveLastVideo, currentTime]);
 
   return {
     videoRef,
@@ -121,7 +242,9 @@ export function useVideoPlayer() {
     videoName,
     videoSize,
     loop,
+    isNative,
     loadVideo,
+    pickVideoNative,
     togglePlay,
     seek,
     changeRate,

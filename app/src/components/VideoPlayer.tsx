@@ -13,6 +13,7 @@ interface Props {
   playbackRate: number;
   volume: number;
   loop: LoopRange | null;
+  isNative: boolean;
   onTogglePlay: () => void;
   onSeek: (time: number) => void;
   onChangeRate: (rate: number) => void;
@@ -22,6 +23,7 @@ interface Props {
   onClearLoop: () => void;
   onAddBookmark: () => void;
   onLoadVideo: (file: File) => void;
+  onPickVideoNative: () => void;
 }
 
 const RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
@@ -38,6 +40,7 @@ export function VideoPlayer({
   playbackRate,
   volume,
   loop,
+  isNative,
   onTogglePlay,
   onSeek,
   onChangeRate,
@@ -47,10 +50,17 @@ export function VideoPlayer({
   onClearLoop,
   onAddBookmark,
   onLoadVideo,
+  onPickVideoNative,
 }: Props) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) onLoadVideo(file);
+  };
+
+  const handlePickVideo = () => {
+    if (isNative) {
+      onPickVideoNative();
+    }
   };
 
   const seekBarPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -61,20 +71,30 @@ export function VideoPlayer({
     <div className="player">
       {!videoSrc ? (
         <div className="file-picker">
-          <label className="file-picker-label">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="23 7 16 12 23 17 23 7" />
-              <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-            </svg>
-            <span>動画ファイルを選択</span>
-            <span className="file-picker-hint">大きいファイルは読み込みに時間がかかります</span>
-            <input
-              type="file"
-              accept="video/*"
-              onChange={handleFileChange}
-              hidden
-            />
-          </label>
+          {isNative ? (
+            <button className="file-picker-btn" onClick={handlePickVideo}>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="23 7 16 12 23 17 23 7" />
+                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+              </svg>
+              <span>動画ファイルを選択</span>
+            </button>
+          ) : (
+            <label className="file-picker-label">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="23 7 16 12 23 17 23 7" />
+                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+              </svg>
+              <span>動画ファイルを選択</span>
+              <span className="file-picker-hint">大きいファイルは読み込みに時間がかかります</span>
+              <input
+                type="file"
+                accept="video/*"
+                onChange={handleFileChange}
+                hidden
+              />
+            </label>
+          )}
         </div>
       ) : (
         <>
@@ -196,15 +216,21 @@ export function VideoPlayer({
             </div>
           </div>
 
-          <label className="change-file-label">
-            別の動画を開く
-            <input
-              type="file"
-              accept="video/*"
-              onChange={handleFileChange}
-              hidden
-            />
-          </label>
+          {isNative ? (
+            <button className="change-file-btn" onClick={handlePickVideo}>
+              別の動画を開く
+            </button>
+          ) : (
+            <label className="change-file-label">
+              別の動画を開く
+              <input
+                type="file"
+                accept="video/*"
+                onChange={handleFileChange}
+                hidden
+              />
+            </label>
+          )}
         </>
       )}
     </div>

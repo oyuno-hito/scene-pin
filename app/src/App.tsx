@@ -33,6 +33,7 @@ export default function App() {
           playbackRate={player.playbackRate}
           volume={player.volume}
           loop={player.loop}
+          isNative={player.isNative}
           onTogglePlay={player.togglePlay}
           onSeek={player.seek}
           onChangeRate={player.changeRate}
@@ -42,6 +43,7 @@ export default function App() {
           onClearLoop={player.clearLoop}
           onAddBookmark={handleAddBookmark}
           onLoadVideo={player.loadVideo}
+          onPickVideoNative={player.pickVideoNative}
         />
 
         {player.videoSrc && (
