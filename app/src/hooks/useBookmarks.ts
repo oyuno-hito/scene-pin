@@ -1,20 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import { db, type Bookmark } from '../db';
 
-export function useBookmarks(videoName: string) {
+export function useBookmarks(videoId: number) {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
 
   const refresh = useCallback(async () => {
-    if (!videoName) {
+    if (!videoId) {
       setBookmarks([]);
       return;
     }
     const items = await db.bookmarks
-      .where('videoName')
-      .equals(videoName)
+      .where('videoId')
+      .equals(videoId)
       .sortBy('timestamp');
     setBookmarks(items);
-  }, [videoName]);
+  }, [videoId]);
 
   useEffect(() => {
     refresh();
@@ -23,14 +23,14 @@ export function useBookmarks(videoName: string) {
   const addBookmark = useCallback(
     async (timestamp: number, memo = '') => {
       await db.bookmarks.add({
-        videoName,
+        videoId,
         timestamp,
         memo,
         createdAt: Date.now(),
       });
       await refresh();
     },
-    [videoName, refresh],
+    [videoId, refresh],
   );
 
   const updateMemo = useCallback(

@@ -1,63 +1,20 @@
-import { VideoPlayer } from './components/VideoPlayer';
-import { BookmarkList } from './components/BookmarkList';
-import { useVideoPlayer } from './hooks/useVideoPlayer';
-import { useBookmarks } from './hooks/useBookmarks';
+import { useState } from 'react';
+import { VideoListPage } from './pages/VideoListPage';
+import { VideoDetailPage } from './pages/VideoDetailPage';
 
 export default function App() {
-  const player = useVideoPlayer();
-  const { bookmarks, addBookmark, updateMemo, removeBookmark } =
-    useBookmarks(player.videoName);
-
-  const handleAddBookmark = () => {
-    addBookmark(player.currentTime);
-  };
+  const [currentVideoId, setCurrentVideoId] = useState<number | null>(null);
 
   return (
     <div className="app">
-      <header className="app-header">
-        <h1>ScenePin</h1>
-        {player.videoName && (
-          <span className="video-title">{player.videoName}</span>
-        )}
-      </header>
-
-      <main className="app-main">
-        <VideoPlayer
-          videoRef={player.videoRef}
-          videoSrc={player.videoSrc}
-          isPlaying={player.isPlaying}
-          isLoading={player.isLoading}
-          currentTime={player.currentTime}
-          duration={player.duration}
-          videoSize={player.videoSize}
-          playbackRate={player.playbackRate}
-          volume={player.volume}
-          loop={player.loop}
-          isNative={player.isNative}
-          onTogglePlay={player.togglePlay}
-          onSeek={player.seek}
-          onChangeRate={player.changeRate}
-          onChangeVolume={player.changeVolume}
-          onSetLoopA={player.setLoopA}
-          onSetLoopB={player.setLoopB}
-          onClearLoop={player.clearLoop}
-          onAddBookmark={handleAddBookmark}
-          onLoadVideo={player.loadVideo}
-          onPickVideoNative={player.pickVideoNative}
+      {currentVideoId === null ? (
+        <VideoListPage onSelectVideo={setCurrentVideoId} />
+      ) : (
+        <VideoDetailPage
+          videoId={currentVideoId}
+          onBack={() => setCurrentVideoId(null)}
         />
-
-        {player.videoSrc && (
-          <section className="bookmarks-section">
-            <h2>ブックマーク</h2>
-            <BookmarkList
-              bookmarks={bookmarks}
-              onSeek={player.seek}
-              onUpdateMemo={updateMemo}
-              onRemove={removeBookmark}
-            />
-          </section>
-        )}
-      </main>
+      )}
     </div>
   );
 }

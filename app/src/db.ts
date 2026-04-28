@@ -2,32 +2,31 @@ import Dexie, { type EntityTable } from 'dexie';
 
 export interface Bookmark {
   id?: number;
-  videoName: string;
+  videoId: number;
   timestamp: number;
   memo: string;
   createdAt: number;
 }
 
-export interface LastVideo {
-  id: number;
-  videoName: string;
+export interface Video {
+  id?: number;
+  name: string;
   filePath: string;
+  thumbnail?: string;
   lastTime: number;
+  duration: number;
+  createdAt: number;
   updatedAt: number;
 }
 
 const db = new Dexie('ScenePinDB') as Dexie & {
   bookmarks: EntityTable<Bookmark, 'id'>;
-  lastVideo: EntityTable<LastVideo, 'id'>;
+  videos: EntityTable<Video, 'id'>;
 };
 
-db.version(1).stores({
-  bookmarks: '++id, videoName, timestamp',
-});
-
-db.version(2).stores({
-  bookmarks: '++id, videoName, timestamp',
-  lastVideo: 'id',
+db.version(4).stores({
+  bookmarks: '++id, videoId, timestamp',
+  videos: '++id, name, updatedAt',
 });
 
 export { db };
