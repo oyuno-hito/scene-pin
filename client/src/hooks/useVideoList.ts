@@ -2,18 +2,20 @@ import { useState, useEffect, useCallback } from 'react';
 import { videoApi, uploadVideo } from '../api/client';
 import type { VideoResponse } from '../api/generated';
 
-export function useVideoList() {
+export function useVideoList(filterTagIds?: number[]) {
   const [videos, setVideos] = useState<VideoResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
-      const items = await videoApi.list({});
+      const items = await videoApi.list({
+        tags: filterTagIds && filterTagIds.length > 0 ? filterTagIds : undefined,
+      });
       setVideos(items);
     } catch (error) {
       console.error('Failed to fetch videos:', error);
     }
-  }, []);
+  }, [filterTagIds]);
 
   useEffect(() => {
     refresh();

@@ -1,12 +1,34 @@
+import { useState, useEffect, useCallback } from 'react';
 import { VideoCard } from '../components/VideoCard';
+import { TagFilter } from '../components/TagFilter';
 import { useVideoList } from '../hooks/useVideoList';
+import { tagApi } from '../api/client';
+import type { TagResponse } from '../api/generated';
 
 interface Props {
   onSelectVideo: (id: number) => void;
 }
 
 export function VideoListPage({ onSelectVideo }: Props) {
-  const { videos, isLoading, addVideo, removeVideo } = useVideoList();
+  const [allTags, setAllTags] = useState<TagResponse[]>([]);
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
+  const { videos, isLoading, addVideo, removeVideo } = useVideoList(selectedTagIds);
+
+  useEffect(() => {
+    tagApi.list1().then(setAllTags).catch(console.error);
+  }, []);
+
+  const handleToggleTag = useCallback((tagId: number) => {
+    setSelectedTagIds(prev =>
+      prev.includes(tagId)
+        ? prev.filter(id => id !== tagId)
+        : [...prev, tagId]
+    );
+  }, []);
+
+  const handleClearTags = useCallback(() => {
+    setSelectedTagIds([]);
+  }, []);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -25,6 +47,13 @@ export function VideoListPage({ onSelectVideo }: Props) {
       </header>
 
       <main className="video-list-main">
+        <TagFilter
+          allTags={allTags}
+          selectedTagIds={selectedTagIds}
+          onToggleTag={handleToggleTag}
+          onClearAll={handleClearTags}
+        />
+
         <div className="video-grid">
           {videos.map((video) => (
             <VideoCard
@@ -63,7 +92,9 @@ export function VideoListPage({ onSelectVideo }: Props) {
 
         {videos.length === 0 && !isLoading && (
           <p className="video-list-empty">
-            動画を追加してブックマークを始めましょう
+            {selectedTagIds.length > 0
+              ? '選択したタグに一致する動画がありません'
+              : '動画を追加してブックマークを始めましょう'}
           </p>
         )}
       </main>
