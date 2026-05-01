@@ -1,32 +1,18 @@
 import Dexie, { type EntityTable } from 'dexie';
 
-export interface Bookmark {
-  id?: number;
+export interface WatchProgress {
   videoId: number;
-  timestamp: number;
-  memo: string;
-  createdAt: number;
-}
-
-export interface Video {
-  id?: number;
-  name: string;
-  filePath: string;
-  thumbnail?: string;
   lastTime: number;
-  duration: number;
-  createdAt: number;
+  duration?: number;
   updatedAt: number;
 }
 
 const db = new Dexie('ScenePinDB') as Dexie & {
-  bookmarks: EntityTable<Bookmark, 'id'>;
-  videos: EntityTable<Video, 'id'>;
+  watchProgress: EntityTable<WatchProgress, 'videoId'>;
 };
 
-db.version(4).stores({
-  bookmarks: '++id, videoId, timestamp',
-  videos: '++id, name, updatedAt',
+db.version(5).stores({
+  watchProgress: 'videoId',
 });
 
 export { db };

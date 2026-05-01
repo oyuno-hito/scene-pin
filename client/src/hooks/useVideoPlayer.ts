@@ -1,6 +1,5 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
-import { Capacitor } from '@capacitor/core';
-import { Filesystem, Directory } from '@capacitor/filesystem';
+import { videoApi, getVideoFileUrl } from '../api/client';
 import { db } from '../db';
 
 export interface LoopRange {
@@ -10,7 +9,6 @@ export interface LoopRange {
 
 export function useVideoPlayer(videoId: number) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const videoSrcRef = useRef<string | null>(null);
   const initialLoadDone = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -21,17 +19,14 @@ export function useVideoPlayer(videoId: number) {
   const [videoSize, setVideoSize] = useState<number>(0);
   const [loop, setLoop] = useState<LoopRange | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isNative] = useState(() => Capacitor.isNativePlatform());
 
   const saveProgress = useCallback(async (time: number, dur?: number) => {
-    const updates: { lastTime: number; updatedAt: number; duration?: number } = {
+    await db.watchProgress.put({
+      videoId,
       lastTime: time,
+      duration: dur,
       updatedAt: Date.now(),
-    };
-    if (dur !== undefined && dur > 0) {
-      updates.duration = dur;
-    }
-    await db.videos.update(videoId, updates);
+    });
   }, [videoId]);
 
   useEffect(() => {
@@ -40,39 +35,19 @@ export function useVideoPlayer(videoId: number) {
 
     (async () => {
       try {
-        const video = await db.videos.get(videoId);
-        if (!video) {
-          setIsLoading(false);
-          return;
-        }
+        const video = await videoApi.get({ id: videoId });
+        const progress = await db.watchProgress.get(videoId);
 
-        if (isNative) {
-          const result = await Filesystem.readFile({
-            path: video.filePath,
-            directory: Directory.Documents,
-          });
-          const blob = new Blob(
-            [Uint8Array.from(atob(result.data as string), c => c.charCodeAt(0))],
-            { type: 'video/mp4' }
-          );
-          const url = URL.createObjectURL(blob);
-          if (videoSrcRef.current) URL.revokeObjectURL(videoSrcRef.current);
-          videoSrcRef.current = url;
-          setVideoSrc(url);
-          setVideoSize(blob.size);
-          setCurrentTime(video.lastTime);
-          setDuration(video.duration || 0);
-        } else {
-          setVideoSrc(video.filePath);
-          setCurrentTime(video.lastTime);
-          setDuration(video.duration || 0);
-        }
+        setVideoSrc(getVideoFileUrl(videoId));
+        setVideoSize(video.fileSize);
+        setCurrentTime(progress?.lastTime ?? 0);
+        setDuration(video.duration / 1000);
       } catch (error) {
         console.error('Failed to load video:', error);
         setIsLoading(false);
       }
     })();
-  }, [videoId, isNative]);
+  }, [videoId]);
 
   const togglePlay = useCallback(() => {
     const video = videoRef.current;
@@ -176,14 +151,6 @@ export function useVideoPlayer(videoId: number) {
       v.removeEventListener('pause', onPause);
     };
   }, [loop, videoSrc, saveProgress, currentTime]);
-
-  useEffect(() => {
-    return () => {
-      if (videoSrcRef.current) {
-        URL.revokeObjectURL(videoSrcRef.current);
-      }
-    };
-  }, []);
 
   return {
     videoRef,

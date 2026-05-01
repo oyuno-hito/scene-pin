@@ -3,7 +3,8 @@ import { VideoPlayer } from '../components/VideoPlayer';
 import { BookmarkList } from '../components/BookmarkList';
 import { useVideoPlayer } from '../hooks/useVideoPlayer';
 import { useBookmarks } from '../hooks/useBookmarks';
-import { db, type Video } from '../db';
+import { videoApi } from '../api/client';
+import type { VideoResponse } from '../api/generated';
 
 interface Props {
   videoId: number;
@@ -11,16 +12,16 @@ interface Props {
 }
 
 export function VideoDetailPage({ videoId, onBack }: Props) {
-  const [video, setVideo] = useState<Video | null>(null);
+  const [video, setVideo] = useState<VideoResponse | null>(null);
   const player = useVideoPlayer(videoId);
   const { bookmarks, addBookmark, updateMemo, removeBookmark } = useBookmarks(videoId);
 
   useEffect(() => {
-    db.videos.get(videoId).then(v => setVideo(v ?? null));
+    videoApi.get({ id: videoId }).then(v => setVideo(v)).catch(() => setVideo(null));
   }, [videoId]);
 
   const handleAddBookmark = () => {
-    addBookmark(player.currentTime);
+    addBookmark(player.currentTime * 1000);
   };
 
   return (

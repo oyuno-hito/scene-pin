@@ -1,8 +1,8 @@
-import type { Video } from '../db';
+import type { VideoResponse } from '../api/generated';
 import { formatTime } from '../utils/format';
 
 interface Props {
-  video: Video;
+  video: VideoResponse;
   onClick: () => void;
   onDelete: () => void;
 }
@@ -15,11 +15,13 @@ export function VideoCard({ video, onClick, onDelete }: Props) {
     }
   };
 
+  const durationInSeconds = video.duration / 1000;
+
   return (
     <div className="video-card" onClick={onClick}>
       <div className="video-card-thumbnail">
-        {video.thumbnail ? (
-          <img src={video.thumbnail} alt="" className="video-card-thumb-img" />
+        {video.thumbnailUrl ? (
+          <img src={video.thumbnailUrl} alt="" className="video-card-thumb-img" />
         ) : (
           <div className="video-card-icon">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
@@ -27,19 +29,14 @@ export function VideoCard({ video, onClick, onDelete }: Props) {
             </svg>
           </div>
         )}
-        {video.duration > 0 && (
-          <span className="video-card-duration">{formatTime(video.duration)}</span>
+        {durationInSeconds > 0 && (
+          <span className="video-card-duration">{formatTime(durationInSeconds)}</span>
         )}
       </div>
       <div className="video-card-info">
         <span className="video-card-name" title={video.name}>
           {video.name}
         </span>
-        {video.lastTime > 0 && (
-          <span className="video-card-progress">
-            {formatTime(video.lastTime)} まで視聴
-          </span>
-        )}
       </div>
       <button className="video-card-delete" onClick={handleDelete} title="削除">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

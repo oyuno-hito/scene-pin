@@ -1,19 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
-import { db, type Bookmark } from '../db';
+import { bookmarkApi } from '../api/client';
+import type { BookmarkResponse } from '../api/generated';
 
 export function useBookmarks(videoId: number) {
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
+  const [bookmarks, setBookmarks] = useState<BookmarkResponse[]>([]);
 
   const refresh = useCallback(async () => {
     if (!videoId) {
       setBookmarks([]);
       return;
     }
-    const items = await db.bookmarks
-      .where('videoId')
-      .equals(videoId)
-      .sortBy('timestamp');
-    setBookmarks(items);
+    try {
+      const items = await bookmarkApi.listByVideo1({ videoId });
+      setBookmarks(items);
+    } catch (error) {
+      console.error('Failed to fetch bookmarks:', error);
+    }
   }, [videoId]);
 
   useEffect(() => {
@@ -22,31 +24,45 @@ export function useBookmarks(videoId: number) {
 
   const addBookmark = useCallback(
     async (timestamp: number, memo = '') => {
-      await db.bookmarks.add({
-        videoId,
-        timestamp,
-        memo,
-        createdAt: Date.now(),
-      });
-      await refresh();
+      try {
+        await bookmarkApi.create({
+          videoId,
+          bookmarkCreateRequest: { timestamp, memo },
+        });
+        await refresh();
+      } catch (error) {
+        console.error('Failed to add bookmark:', error);
+      }
     },
     [videoId, refresh],
   );
 
   const updateMemo = useCallback(
     async (id: number, memo: string) => {
-      await db.bookmarks.update(id, { memo });
-      await refresh();
+      try {
+        await bookmarkApi.update({
+          videoId,
+          id,
+          bookmarkUpdateRequest: { memo },
+        });
+        await refresh();
+      } catch (error) {
+        console.error('Failed to update bookmark:', error);
+      }
     },
-    [refresh],
+    [videoId, refresh],
   );
 
   const removeBookmark = useCallback(
     async (id: number) => {
-      await db.bookmarks.delete(id);
-      await refresh();
+      try {
+        await bookmarkApi._delete({ videoId, id });
+        await refresh();
+      } catch (error) {
+        console.error('Failed to remove bookmark:', error);
+      }
     },
-    [refresh],
+    [videoId, refresh],
   );
 
   return { bookmarks, addBookmark, updateMemo, removeBookmark };

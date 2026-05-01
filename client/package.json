@@ -5,12 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
+    "typecheck": "tsc -b",
     "lint": "eslint .",
     "preview": "vite preview",
     "cap:sync": "npm run build && cap sync",
     "cap:open:ios": "cap open ios",
-    "cap:build:ios": "npm run build && cap sync ios"
+    "cap:build:ios": "npm run build && cap sync ios",
+    "api:generate": "openapi-generator-cli generate -i http://localhost:8080/api-docs -g typescript-fetch -o src/api/generated --additional-properties=supportsES6=true,typescriptThreePlus=true"
   },
   "dependencies": {
     "@capacitor/cli": "^8.3.1",
@@ -24,6 +26,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@openapitools/openapi-generator-cli": "^2.13.4",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
