@@ -1,0 +1,21 @@
+### Variables
+@baseUrl = http://localhost:8080
+@videoId = 1
+@tagId = 1
+
+### タグ一覧取得
+GET {{baseUrl}}/api/tags
+
+### 動画のタグ一覧取得
+GET {{baseUrl}}/api/videos/{{videoId}}/tags
+
+### 動画にタグを追加
+POST {{baseUrl}}/api/videos/{{videoId}}/tags
+Content-Type: application/json
+
+{
+  "name": "新しいタグ"
+}
+
+### 動画からタグを削除
+DELETE {{baseUrl}}/api/videos/{{videoId}}/tags/{{tagId}}

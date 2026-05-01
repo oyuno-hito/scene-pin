@@ -1,0 +1,25 @@
+### Variables
+@baseUrl = http://localhost:8080
+
+### 動画一覧取得
+GET {{baseUrl}}/api/videos
+
+### 動画一覧取得（タグフィルター）
+GET {{baseUrl}}/api/videos?tags=1,2
+
+### 動画詳細取得
+GET {{baseUrl}}/api/videos/1
+
+### 動画更新
+PATCH {{baseUrl}}/api/videos/1
+Content-Type: application/json
+
+{
+  "name": "更新後の動画名"
+}
+
+### 動画削除
+DELETE {{baseUrl}}/api/videos/1
+
+### サムネイル取得
+GET {{baseUrl}}/api/videos/2/thumbnail

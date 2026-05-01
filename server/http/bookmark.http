@@ -1,0 +1,27 @@
+### Variables
+@baseUrl = http://localhost:8080
+@videoId = 1
+@bookmarkId = 1
+
+### 動画のブックマーク一覧取得
+GET {{baseUrl}}/api/videos/{{videoId}}/bookmarks
+
+### ブックマーク作成
+POST {{baseUrl}}/api/videos/{{videoId}}/bookmarks
+Content-Type: application/json
+
+{
+  "timestamp": 45000,
+  "memo": "新しいブックマーク"
+}
+
+### ブックマーク更新（メモ編集）
+PATCH {{baseUrl}}/api/videos/{{videoId}}/bookmarks/{{bookmarkId}}
+Content-Type: application/json
+
+{
+  "memo": "更新後のメモ"
+}
+
+### ブックマーク削除
+DELETE {{baseUrl}}/api/videos/{{videoId}}/bookmarks/{{bookmarkId}}
