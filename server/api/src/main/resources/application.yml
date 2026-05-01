@@ -34,9 +34,9 @@ server:
   port: ${SERVER_PORT:8080}
 
 storage:
-  base-url: http://localhost:8080
-  video-path: ./data/videos
-  thumbnail-path: ./data/thumbnails
+  base-url: ${STORAGE_BASE_URL:http://localhost:8080}
+  video-path: ${STORAGE_VIDEO_PATH:./data/videos}
+  thumbnail-path: ${STORAGE_THUMBNAIL_PATH:./data/thumbnails}
 
 video:
   compression:
