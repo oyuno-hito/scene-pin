@@ -1,0 +1,33 @@
+# Git
+.git
+.gitignore
+
+# Node
+**/node_modules
+client/dist
+
+# Gradle
+server/.gradle
+server/**/build
+server/**/.gradle
+
+# IDE
+.idea
+.vscode
+*.iml
+
+# Env files
+**/.env
+.envrc
+
+# Documentation
+docs
+*.md
+
+# Infrastructure
+infra
+deploy
+
+# Misc
+.DS_Store
+*.log
