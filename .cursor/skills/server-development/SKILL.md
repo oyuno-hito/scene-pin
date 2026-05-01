@@ -30,6 +30,7 @@ domain → (なし)
 
 - Kotlin + Spring Boot
 - PostgreSQL + Flyway
+- JOOQ (ORM/クエリビルダー)
 - Gradle (Kotlin DSL)
 
 ---
@@ -64,16 +65,34 @@ domain/src/main/kotlin/com/scenepin/domain/feature/{feature}/
     └── {Feature}Repository.kt  # interface
 ```
 
-### 3. infra層
+### 3. JOOQコード生成
+
+テーブル追加後、JOOQのコード生成を実行:
+
+```bash
+# 1. PostgreSQL起動
+cd server && docker-compose up -d
+
+# 2. アプリ起動でマイグレーション実行（初回のみ）
+./gradlew :api:bootRun
+
+# 3. JOOQコード生成
+./gradlew :infra:jooqCodegen
+```
+
+生成されたコードは `infra/src/main/kotlin/com/scenepin/infra/jooq/` に配置される。
+
+### 4. infra層
 
 ```
-infra/src/main/kotlin/com/scenepin/infra/persistence/{feature}/
-├── {Feature}Entity.kt
-├── {Feature}JpaRepository.kt
-└── {Feature}RepositoryImpl.kt
+infra/src/main/kotlin/com/scenepin/infra/
+├── jooq/                    # JOOQ生成コード（自動生成、編集禁止）
+│   └── tables/
+└── persistence/{feature}/
+    └── {Feature}RepositoryImpl.kt
 ```
 
-### 4. api層
+### 5. api層
 
 ```
 api/src/main/kotlin/com/scenepin/api/feature/{feature}/
@@ -90,36 +109,22 @@ api/src/main/kotlin/com/scenepin/api/feature/{feature}/
 
 ## コード規約
 
-### Entity と Model の分離
+### Domain Model
 
 ```kotlin
-// domain/model - ビジネスロジック用
+// domain/model - ビジネスロジック用（純粋なデータクラス）
 data class Video(
     val id: Long?,
     val name: String,
     val filePath: String,
-    val duration: Int,
-    val lastPosition: Int
+    val thumbnailPath: String?,
+    val duration: Long,
+    val createdAt: LocalDateTime,
+    val updatedAt: LocalDateTime
 )
-
-// infra/persistence - JPA用
-@Entity
-@Table(name = "videos")
-class VideoEntity(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
-    val name: String,
-    val filePath: String,
-    val duration: Int,
-    val lastPosition: Int
-)
-
-// 変換関数は RepositoryImpl 内に配置
-private fun Video.toEntity() = VideoEntity(...)
-private fun VideoEntity.toDomain() = Video(...)
 ```
 
-### Repository パターン
+### Repository パターン（JOOQ実装）
 
 ```kotlin
 // domain - interface
@@ -130,16 +135,36 @@ interface VideoRepository {
     fun delete(id: Long)
 }
 
-// infra - 実装
+// infra - JOOQ実装
 @Repository
 class VideoRepositoryImpl(
-    private val jpaRepository: VideoJpaRepository
+    private val dsl: DSLContext
 ) : VideoRepository {
+    override fun findById(id: Long): Video? {
+        return dsl.selectFrom(VIDEOS)
+            .where(VIDEOS.ID.eq(id))
+            .fetchOne()
+            ?.toDomain()
+    }
+
     override fun save(video: Video): Video {
-        return jpaRepository.save(video.toEntity()).toDomain()
+        val record = dsl.newRecord(VIDEOS).apply {
+            name = video.name
+            filePath = video.filePath
+            // ...
+        }
+        record.store()
+        return record.toDomain()
     }
     // ...
 }
+
+// 変換関数
+private fun VideosRecord.toDomain() = Video(
+    id = id,
+    name = name,
+    // ...
+)
 ```
 
 ### Controller
