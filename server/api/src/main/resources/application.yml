@@ -43,3 +43,9 @@ video:
   thumbnail:
     width: 320
     height: 180
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
