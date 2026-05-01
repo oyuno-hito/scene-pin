@@ -1,0 +1,45 @@
+services:
+  app:
+    image: ghcr.io/${GITHUB_USERNAME}/scene-pin-server:latest
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-scenepin}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-scenepin}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-scenepin}
+      - STORAGE_BASE_URL=${STORAGE_BASE_URL:-http://localhost:8080}
+      - STORAGE_VIDEO_PATH=/data/videos
+      - STORAGE_THUMBNAIL_PATH=/data/thumbnails
+    volumes:
+      - ${DATA_PATH:-./data}/videos:/data/videos
+      - ${DATA_PATH:-./data}/thumbnails:/data/thumbnails
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-scenepin}
+      - POSTGRES_USER=${POSTGRES_USER:-scenepin}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-scenepin}
+    volumes:
+      - ${DATA_PATH:-./data}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-scenepin}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${HOME}/.docker/config.json:/config.json:ro
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=${WATCHTOWER_INTERVAL:-300}
+      - WATCHTOWER_INCLUDE_RESTARTING=true
+    restart: unless-stopped
