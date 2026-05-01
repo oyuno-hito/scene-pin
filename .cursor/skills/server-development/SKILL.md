@@ -105,6 +105,66 @@ api/src/main/kotlin/com/scenepin/api/feature/{feature}/
     └── {Feature}Response.kt
 ```
 
+### 6. HTTPファイル作成
+
+Controller実装時に、動作確認用の.httpファイルも作成する:
+
+```
+server/http/{feature}.http
+```
+
+例:
+```http
+### Variables
+@baseUrl = http://localhost:8080
+
+### 一覧取得
+GET {{baseUrl}}/api/{features}
+
+### 詳細取得
+GET {{baseUrl}}/api/{features}/1
+
+### 作成
+POST {{baseUrl}}/api/{features}
+Content-Type: application/json
+
+{
+  "name": "テスト"
+}
+
+### 更新
+PATCH {{baseUrl}}/api/{features}/1
+Content-Type: application/json
+
+{
+  "name": "更新後"
+}
+
+### 削除
+DELETE {{baseUrl}}/api/{features}/1
+```
+
+---
+
+## Feature実装の進め方
+
+**feature単位で完結させる。** 1つのfeatureが終わるまで次に進まない。
+
+### 実装順序
+
+1. マイグレーション
+2. domain層（model, repository IF, service）
+3. JOOQコード生成
+4. infra層（repositoryImpl）
+5. api層（controller, request, response）
+6. .httpファイル
+7. ビルド確認
+
+### 完了条件
+
+- ビルドが通ること
+- .httpファイルでAPIが動作確認できること
+
 ---
 
 ## コード規約
@@ -211,6 +271,7 @@ V3__add_duration_to_videos.sql
 - 一度適用したマイグレーションは編集しない
 - カラム追加は新しいマイグレーションで
 - 本番環境でのDROP/TRUNCATEは慎重に
+- **DEFAULT値は使わない** - JOOQがnullable型を生成してしまうため
 
 ---
 
@@ -224,6 +285,17 @@ GET    /api/{resources}/{id}      # 詳細
 POST   /api/{resources}           # 作成
 PATCH  /api/{resources}/{id}      # 更新
 DELETE /api/{resources}/{id}      # 削除
+```
+
+### ネストしたリソース
+
+親リソースに紐づくリソースは、親のパス配下に配置する:
+
+```
+GET    /api/videos/{videoId}/bookmarks              # 動画のブックマーク一覧
+POST   /api/videos/{videoId}/bookmarks              # ブックマーク作成
+PATCH  /api/videos/{videoId}/bookmarks/{id}         # ブックマーク更新
+DELETE /api/videos/{videoId}/bookmarks/{id}         # ブックマーク削除
 ```
 
 ### レスポンス形式
