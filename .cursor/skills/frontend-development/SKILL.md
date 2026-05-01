@@ -11,7 +11,7 @@ description: >-
 ## プロジェクト構成
 
 ```
-app/
+client/
 ├── src/
 │   ├── components/       # UIコンポーネント
 │   ├── hooks/            # カスタムフック
@@ -23,7 +23,7 @@ app/
 │   ├── main.tsx          # エントリーポイント
 │   └── index.css         # グローバルスタイル
 ├── public/               # 静的ファイル
-└── ios/                  # Capacitorプロジェクト
+└── ios/                  # Capacitor iOSプロジェクト
 ```
 
 ## 技術スタック
@@ -201,7 +201,7 @@ export const videosApi = {
 ### ビルドコマンド
 
 ```bash
-cd app && npm run lint && npm run build
+cd client && npm run lint && npm run build
 ```
 
 ### Capacitor同期
@@ -209,7 +209,7 @@ cd app && npm run lint && npm run build
 iOS向けの変更がある場合:
 
 ```bash
-cd app && npm run cap:sync
+cd client && npm run cap:sync
 ```
 
 ### チェックリスト
@@ -223,4 +223,4 @@ cd app && npm run cap:sync
 ## 詳細ドキュメント
 
 - 要求仕様: [docs/要求仕様書/v2.0.0.md](../../../docs/要求仕様書/v2.0.0.md)
-- Capacitor設定: [app/README.md](../../../app/README.md)
+- Capacitor設定: [client/README.md](../../../client/README.md)

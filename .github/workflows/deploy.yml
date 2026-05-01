@@ -5,7 +5,7 @@ on:
   # push:
   #   branches: [main]
   #   paths:
-  #     - "app/**"
+  #     - "client/**"
   #     - ".github/workflows/deploy.yml"
   workflow_dispatch:
 
@@ -27,18 +27,18 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-          cache-dependency-path: app/package-lock.json
+          cache-dependency-path: client/package-lock.json
 
       - name: Install dependencies
-        working-directory: app
+        working-directory: client
         run: npm ci
 
       - name: Lint
-        working-directory: app
+        working-directory: client
         run: npm run lint
 
       - name: Build
-        working-directory: app
+        working-directory: client
         run: npm run build
 
       - name: Configure AWS credentials
@@ -48,7 +48,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Deploy to S3
-        working-directory: app
+        working-directory: client
         run: |
           aws s3 sync dist/ "s3://${{ secrets.S3_BUCKET_NAME }}" \
             --delete \

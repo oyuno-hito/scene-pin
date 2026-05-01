@@ -2,7 +2,7 @@
 description: Skill/Ruleの同期更新ルール
 globs:
   - server/**
-  - app/**
+  - client/**
   - .cursor/skills/**
   - .cursor/rules/**
   - docs/**
