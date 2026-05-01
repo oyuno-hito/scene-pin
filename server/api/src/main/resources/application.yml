@@ -2,6 +2,11 @@ spring:
   application:
     name: scene-pin-server
 
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
+
   datasource:
     url: jdbc:postgresql://localhost:5432/scenepin
     username: scenepin
@@ -25,7 +30,16 @@ server:
   port: 8080
 
 storage:
-  base-path: ./data/videos
+  base-url: http://localhost:8080
+  video-path: ./data/videos
+  thumbnail-path: ./data/thumbnails
 
-thumbnail:
-  base-path: ./data/thumbnails
+video:
+  compression:
+    enabled: true
+    max-width: 1280
+    crf: 28
+    codec: libx264
+  thumbnail:
+    width: 320
+    height: 180

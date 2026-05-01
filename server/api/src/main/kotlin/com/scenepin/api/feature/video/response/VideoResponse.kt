@@ -13,10 +13,10 @@ data class VideoResponse(
     val updatedAt: LocalDateTime
 )
 
-fun Video.toResponse() = VideoResponse(
+fun Video.toResponse(storageBaseUrl: String) = VideoResponse(
     id = id!!,
     name = name,
-    thumbnailUrl = "/api/videos/$id/thumbnail",
+    thumbnailUrl = "$storageBaseUrl/thumbnails/$thumbnailPath",
     duration = duration,
     fileSize = fileSize,
     createdAt = createdAt,

@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":domain"))
 
     implementation("org.springframework.boot:spring-boot-starter-jooq")
+    implementation("com.github.kokorin.jaffree:jaffree:2024.08.29")
     runtimeOnly("org.postgresql:postgresql")
 
     jooqCodegen("org.postgresql:postgresql")

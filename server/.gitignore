@@ -14,3 +14,6 @@ build/
 
 # Data
 data/
+
+# HTTP
+http/**/*.mp4
