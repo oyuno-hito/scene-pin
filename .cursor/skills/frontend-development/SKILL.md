@@ -30,8 +30,41 @@ client/
 
 - React 19 + TypeScript
 - Vite
-- Dexie（IndexedDB）
+- openapi-generator-cli（APIクライアント生成）
+- Dexie（ローカルDB - 視聴位置保存用）
 - Capacitor（iOS）
+
+---
+
+## APIクライアント生成
+
+サーバーAPIの変更後、クライアントコードを再生成する。
+
+### 前提条件
+
+- サーバーが起動していること（`http://localhost:8080`）
+
+### 生成コマンド
+
+```bash
+cd client
+npm run api:generate
+```
+
+### 生成されるファイル
+
+```
+src/api/generated/
+├── apis/           # APIクラス
+├── models/         # 型定義
+├── runtime.ts
+└── index.ts
+```
+
+### 注意事項
+
+- `src/api/generated/` は自動生成、手動編集禁止
+- multipart/form-data（ファイルアップロード）は`client.ts`で手動実装
 
 ---
 
@@ -139,36 +172,64 @@ export default function App() {
 
 ---
 
-## API連携（v2.0.0）
+## API連携
 
 ### ディレクトリ構成
 
 ```
 api/
-├── client.ts             # fetchラッパー
-├── videos.ts             # 動画API
-└── bookmarks.ts          # ブックマークAPI
+├── client.ts             # APIインスタンス・ヘルパー
+└── generated/            # openapi-generatorで生成（編集禁止）
 ```
 
-### APIクライアントの書き方
+### APIクライアントの使い方
 
 ```typescript
 // api/client.ts
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import { Configuration, VideoControllerApi, ... } from './generated';
 
-export async function apiGet<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`);
-  if (!res.ok) throw new Error(`API error: ${res.status}`);
-  return res.json();
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
+const configuration = new Configuration({
+  basePath: API_BASE_URL,
+});
+
+export const videoApi = new VideoControllerApi(configuration);
+export const bookmarkApi = new BookmarkControllerApi(configuration);
+
+// multipart対応（生成コードでは未対応のため手動実装）
+export async function uploadVideo(file: File): Promise<VideoResponse> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await fetch(`${API_BASE_URL}/api/videos/upload`, {
+    method: 'POST',
+    body: formData,
+  });
+  return response.json();
 }
-
-// api/videos.ts
-export const videosApi = {
-  list: () => apiGet<Video[]>('/api/videos'),
-  get: (id: number) => apiGet<Video>(`/api/videos/${id}`),
-  // ...
-};
 ```
+
+### hooks内での使用
+
+```typescript
+import { videoApi } from '../api/client';
+
+export function useVideoList() {
+  const refresh = useCallback(async () => {
+    const items = await videoApi.list({});
+    setVideos(items);
+  }, []);
+  // ...
+}
+```
+
+### API変更時のワークフロー
+
+1. サーバー側でController/DTOを変更
+2. サーバーを起動
+3. `npm run api:generate` でクライアント再生成
+4. hooks/コンポーネントを更新
+5. ビルド確認
 
 ---
 

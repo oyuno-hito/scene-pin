@@ -32,6 +32,35 @@ domain → (なし)
 - PostgreSQL + Flyway
 - JOOQ (ORM/クエリビルダー)
 - Gradle (Kotlin DSL)
+- springdoc-openapi (OpenAPI仕様自動生成)
+
+---
+
+## OpenAPI仕様
+
+springdoc-openapiにより、Controller/DTOから自動でOpenAPI仕様が生成される。
+
+### エンドポイント
+
+| パス | 説明 |
+|------|------|
+| `/api-docs` | OpenAPI JSON（コード生成用） |
+| `/swagger-ui.html` | Swagger UI（ブラウザ確認用） |
+
+### 設定（application.yml）
+
+```yaml
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+```
+
+### API変更時の注意
+
+- Controller/DTOを変更したら、クライアント側でAPIクライアントを再生成する
+- `cd client && npm run api:generate`
 
 ---
 
